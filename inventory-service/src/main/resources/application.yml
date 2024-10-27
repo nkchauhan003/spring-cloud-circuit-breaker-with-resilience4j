@@ -1,0 +1,8 @@
+# Configuration for Swagger UI
+springdoc:
+  swagger-ui:
+    # Path to access Swagger UI
+    path: /swagger-ui.html
+
+# Configuration for the server port
+server.port: 8081
