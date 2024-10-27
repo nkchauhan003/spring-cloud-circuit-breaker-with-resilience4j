@@ -14,7 +14,6 @@ inventory:
     slow-call-duration-threshold-milis: 2000
     wait-duration-in-open-state-milis: 5000
     permitted-number-of-calls-in-half-open-state: 3
-
     timeout-duration-milis: 10000
 
 # Configuration for Swagger UI
@@ -31,3 +30,11 @@ management:
     health:
       show-details: always
   health.circuitbreakers.enabled: true
+
+# logging configuration
+logging:
+  level:
+    io:
+      github:
+        resilience4j:
+          circuitbreaker: DEBUG

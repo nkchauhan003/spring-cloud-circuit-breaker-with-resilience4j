@@ -22,7 +22,7 @@ public class InventoryClient {
     /**
      * Constructs an InventoryClient with the specified RestTemplate and inventory service URL.
      *
-     * @param restTemplate the RestTemplate to use for HTTP requests
+     * @param restTemplate        the RestTemplate to use for HTTP requests
      * @param inventoryServiceUrl the base URL of the inventory service
      */
     public InventoryClient(RestTemplate restTemplate, @Value("${inventory.service.url}") String inventoryServiceUrl) {
@@ -49,7 +49,7 @@ public class InventoryClient {
      * Fallback method for getInventoryItem, called when the circuit breaker is open or an error occurs.
      *
      * @param itemId the ID of the inventory item that was attempted to be fetched
-     * @param t the throwable that caused the fallback
+     * @param t      the throwable that caused the fallback
      * @return null, or a default InventoryResponse
      */
     public InventoryResponse fallbackGetInventoryItem(String itemId, Throwable t) {

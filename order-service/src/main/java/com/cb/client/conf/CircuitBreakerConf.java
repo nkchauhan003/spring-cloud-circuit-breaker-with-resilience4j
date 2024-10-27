@@ -6,6 +6,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.circuitbreaker.event.CircuitBreakerOnStateTransitionEvent;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -17,10 +18,8 @@ import java.time.Duration;
 @Configuration
 @ConfigurationProperties("inventory.circuit-breaker")
 @Setter
+@Slf4j
 public class CircuitBreakerConf {
-
-    private static final Logger logger = LoggerFactory.getLogger(CircuitBreakerConf.class);
-
     private String name;
     private Integer slidingWindowSize;
     private Float failureRateThreshold;
@@ -54,8 +53,7 @@ public class CircuitBreakerConf {
     }
 
     private void onStateTransition(CircuitBreakerOnStateTransitionEvent event) {
-        System.out.println("CircuitBreaker '" + event.getCircuitBreakerName() + "' changed state from "
-                + event.getStateTransition().getFromState() + " to " + event.getStateTransition().getToState());
+        log.error("CircuitBreaker '{}' changed state from {} to {}", event.getCircuitBreakerName(), event.getStateTransition().getFromState(), event.getStateTransition().getToState());
     }
 
 }

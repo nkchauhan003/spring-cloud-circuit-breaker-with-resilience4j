@@ -2,7 +2,6 @@ package com.cb.controller;
 
 import com.cb.client.InventoryClient;
 import com.cb.model.Order;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,8 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class OrderController {
 
-    @Autowired
-    private InventoryClient inventoryClient;
+    private final InventoryClient inventoryClient;
+
+    public OrderController(InventoryClient inventoryClient) {
+        this.inventoryClient = inventoryClient;
+    }
 
     /**
      * Retrieves an order by its ID.
@@ -28,7 +30,6 @@ public class OrderController {
         var itemId = "dummyItemId";
         var inventoryResponse = inventoryClient.getInventoryItem(itemId);
         // Create a dummy Order Response using the inventory data
-        var orderResponse = new Order(orderId, itemId, inventoryResponse.name(), inventoryResponse.quantity());
-        return orderResponse;
+        return new Order(orderId, itemId, inventoryResponse.name(), inventoryResponse.quantity());
     }
 }
