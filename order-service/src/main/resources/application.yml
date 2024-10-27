@@ -6,15 +6,21 @@ spring:
 inventory:
   service:
     url: http://localhost:8081/inventory/
-  circuit-breaker:
-    name: inventory-circuit-breaker
-    sliding-window-size: 10
-    failure-rate-threshold: 30
-    slow-call-rate-threshold: 50
-    slow-call-duration-threshold-milis: 2000
-    wait-duration-in-open-state-milis: 5000
-    permitted-number-of-calls-in-half-open-state: 3
-    timeout-duration-milis: 10000
+
+# Configuration for resilience4j  circuit breaker
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory-circuit-breaker:
+        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5000  # 5 seconds
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 2000 # 2 seconds
 
 # Configuration for Swagger UI
 springdoc:
