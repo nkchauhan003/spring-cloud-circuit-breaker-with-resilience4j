@@ -7,17 +7,18 @@ inventory:
   service:
     url: http://localhost:8081/inventory/
 
-# Configuration for resilience4j  circuit breaker
-resilience4j:
+# Configuration for resilience4j circuit breaker
+spring-cloud-resilience4j:
   circuitbreaker:
     instances:
       inventory-circuit-breaker:
-        registerHealthIndicator: true
+        name: inventory-circuit-breaker
+        #registerHealthIndicator: true
         slidingWindowType: COUNT_BASED
         slidingWindowSize: 10
         failureRateThreshold: 50
-        waitDurationInOpenState: 5000  # 5 seconds
-        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 60000  # 1 min
+        permittedNumberOfCallsInHalfOpenState: 5
         automaticTransitionFromOpenToHalfOpenEnabled: true
         slowCallRateThreshold: 50
         slowCallDurationThreshold: 2000 # 2 seconds

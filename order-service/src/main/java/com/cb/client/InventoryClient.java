@@ -1,12 +1,15 @@
 package com.cb.client;
 
 import com.cb.client.response.InventoryResponse;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.core.SupplierUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.function.Supplier;
 
 /**
  * Client for interacting with the inventory service.
@@ -18,17 +21,14 @@ public class InventoryClient {
 
     private final RestTemplate restTemplate;
     private final String inventoryServiceUrl;
+    private final CircuitBreaker circuitBreaker;
 
-    /**
-     * Constructs an InventoryClient with the specified RestTemplate and inventory service URL.
-     *
-     * @param restTemplate        the RestTemplate to use for HTTP requests
-     * @param inventoryServiceUrl the base URL of the inventory service
-     */
-    public InventoryClient(RestTemplate restTemplate, @Value("${inventory.service.url}") String inventoryServiceUrl) {
+    public InventoryClient(RestTemplate restTemplate, @Value("${inventory.service.url}") String inventoryServiceUrl, CircuitBreaker circuitBreaker) {
         this.restTemplate = restTemplate;
         this.inventoryServiceUrl = inventoryServiceUrl;
+        this.circuitBreaker = circuitBreaker;
     }
+
 
     /**
      * Fetches an inventory item by its ID, with circuit breaker support.
@@ -36,13 +36,18 @@ public class InventoryClient {
      * @param itemId the ID of the inventory item to fetch
      * @return the fetched InventoryResponse, or null if the request fails
      */
-    @CircuitBreaker(name = "inventory-circuit-breaker", fallbackMethod = "fallbackGetInventoryItem")
     public InventoryResponse getInventoryItem(String itemId) {
         String url = inventoryServiceUrl + itemId;
         logger.info("Fetching inventory item from URL: {}", url);
-        var response = restTemplate.getForObject(url, InventoryResponse.class);
-        logger.info("Received inventory item: {}", response);
-        return response;
+        Supplier<InventoryResponse> supplier = () -> {
+            // This code is executed within the circuit breaker
+            var response = restTemplate.getForObject(url, InventoryResponse.class);
+            logger.info("Received inventory item: {}", response);
+            return response;
+        };
+        Supplier<InventoryResponse> supplierWithRecovery = SupplierUtils
+                .recover(supplier, exception -> fallbackGetInventoryItem(itemId, exception));
+        return circuitBreaker.executeSupplier(supplierWithRecovery);
     }
 
     /**
