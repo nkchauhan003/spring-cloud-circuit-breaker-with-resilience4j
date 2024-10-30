@@ -8,7 +8,7 @@ inventory:
     url: http://localhost:8081/inventory/
 
 # Configuration for resilience4j circuit breaker
-spring-cloud-resilience4j:
+resilience4j:
   circuitbreaker:
     instances:
       inventory-circuit-breaker:
