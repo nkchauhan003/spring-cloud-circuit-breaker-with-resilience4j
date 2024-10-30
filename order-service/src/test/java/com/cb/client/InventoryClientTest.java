@@ -68,8 +68,8 @@ class InventoryClientTest {
         when(restTemplate.getForObject("http://localhost:8081/inventory/1", InventoryResponse.class))
                 .thenReturn(new InventoryResponse("1", "Item 1", 10));
         InventoryResponse result = inventoryClient.getInventoryItem("1");
-        assertEquals("1", result.id());
-        verify(restTemplate, times(1)).getForObject(anyString(), eq(InventoryResponse.class));
+        assertEquals("1", result.id(), "Item ID should match");
+        verify(restTemplate, times(1)).getForObject(anyString(), eq(InventoryResponse.class), "RestTemplate should be called once");
     }
 
     /**
