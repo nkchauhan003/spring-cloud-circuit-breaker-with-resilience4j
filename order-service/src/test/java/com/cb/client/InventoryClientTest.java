@@ -21,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -79,12 +80,15 @@ class InventoryClientTest {
         circuitBreakerRegistry.circuitBreaker("inventory-circuit-breaker")
                 .transitionToOpenState();
         doThrow(new RuntimeException()).when(restTemplate).getForObject("http://localhost:8081/inventory/1", InventoryResponse.class);
+        InventoryResponse result = null;
         try {
-            InventoryResponse result = inventoryClient.getInventoryItem("1");
-            assertEquals("default", result.id());
+            result = inventoryClient.getInventoryItem("1");
         } catch (RuntimeException e) {
-            assertEquals(CallNotPermittedException.class, e.getClass());
-            verifyNoInteractions(restTemplate);
+            assertEquals(CallNotPermittedException.class, e.getClass(), "Circuit breaker should prevent the request");
+            verifyNoInteractions(restTemplate, "Request should not be made when circuit breaker is open");
+        } finally {
+            assertNotNull(result, "Result should not be null");
+            assertEquals("default", result.id(), "Default item should be returned");
         }
     }
 
@@ -98,12 +102,16 @@ class InventoryClientTest {
         circuitBreakerRegistry.circuitBreaker("inventory-circuit-breaker")
                 .transitionToHalfOpenState();
         doThrow(new RuntimeException()).when(restTemplate).getForObject("http://localhost:8081/inventory/1", InventoryResponse.class);
+        InventoryResponse result = null;
         try {
-            InventoryResponse result = inventoryClient.getInventoryItem("1");
-            assertEquals("default", result.id());
+            result = inventoryClient.getInventoryItem("1");
+            assertEquals("default", result.id(), "Default item should be returned");
         } catch (RuntimeException e) {
-            assertEquals(CallNotPermittedException.class, e.getClass());
-            verifyNoInteractions(restTemplate);
+            assertEquals(CallNotPermittedException.class, e.getClass(), "Circuit breaker should prevent the request");
+            verifyNoInteractions(restTemplate, "Request should not be made when circuit breaker is open");
+        } finally {
+            assertNotNull(result, "Result should not be null");
+            assertEquals("default", result.id(), "Default item should be returned");
         }
     }
 }
